@@ -3,7 +3,7 @@ import os
 
 # MongoDB: donde están todas las asistencias (historial + las nuevas que guarda Spring Boot)
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://localhost:27017")
-MONGO_DB = os.getenv("MONGO_DB", "control_asistencia_mongo")
+MONGO_DB = os.getenv("MONGO_DB", "asistcontrol")
 MONGO_COLECCION = os.getenv("MONGO_COLECCION", "asistencias")
 
 # Clave compartida con Spring Boot: solo el backend puede usar este servicio

@@ -24,7 +24,7 @@ Variables (de cada clase se mira solo el historial **anterior**, para no hacer t
 > **La hora no se usa.** En el historial de Mongo, el campo `hora_num` delata el resultado
 > (todas las ausencias tienen hora > 8.7). Con él el modelo daba 100 % de acierto falso.
 
-**Resultados** (5015 asistencias, 20 % reservado para prueba): exactitud 71 %, **AUC 0.60**.
+**Resultados** (5271 asistencias, 20 % reservado para prueba): exactitud 71 %, **AUC 0.60**.
 También se probaron una regresión logística (AUC 0.61) y una red neuronal MLP (AUC 0.59):
 los tres empatan, lo que indica que el límite está en los datos (mucho azar), no en el modelo.
 Se eligió Random Forest porque además explica qué variables pesan más.
@@ -50,4 +50,8 @@ Documentación interactiva: http://localhost:8000/docs (las rutas piden la cabec
 | GET | `/prediccion?fecha=&clase=` | Probabilidad de todos los alumnos (panel de riesgo) |
 
 ## Variables de entorno (nube)
-`MONGO_URI`, `MONGO_DB` (control_asistencia_mongo), `IA_API_KEY` (la misma que en Spring Boot).
+`MONGO_URI`, `MONGO_DB` (asistcontrol), `IA_API_KEY` (la misma que en Spring Boot).
+
+## Migración (una sola vez)
+`herramientas/migrar_a_mongo.py` pasa MySQL + el historial a la base `asistcontrol`
+(sin repetir asistencias). Requiere `pip install pymysql`.
