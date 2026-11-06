@@ -110,21 +110,31 @@ class ModeloAsistencia:
 
     # ------------------------------------------------------------------ predicción
     def predecir(self, alumno: str, clase: str, dia_semana: int, mes: int) -> dict:
+        return self.predecir_lote([(alumno, clase)], dia_semana, mes)[0]
+
+    def predecir_lote(self, pares: list[tuple[str, str]], dia_semana: int, mes: int) -> list[dict]:
+        """Predice varias combinaciones alumno–materia en UNA sola pasada por el bosque
+        (mucho más rápido que una por una en el servidor gratis de la nube)."""
         if not self.listo:
             raise RuntimeError("El modelo aún no está entrenado.")
-        clase = self._clase_canonica(clase)
+        if not pares:
+            return []
         with self._lock:
-            hist = self.historial.caracteristicas(alumno, clase)
-            fila = {**hist, "dia_semana": dia_semana, "mes": mes, "clase": clase}
-            M = a_matriz(pd.DataFrame([fila]), self.clases)
-            prob = float(self.bosque.predict_proba(M)[0, 1])
+            filas, historiales = [], []
+            for alumno, clase in pares:
+                clase = self._clase_canonica(clase)
+                hist = self.historial.caracteristicas(alumno, clase)
+                historiales.append((alumno, clase, hist))
+                filas.append({**hist, "dia_semana": dia_semana, "mes": mes, "clase": clase})
+            M = a_matriz(pd.DataFrame(filas), self.clases)
+            probs = self.bosque.predict_proba(M)[:, 1]
 
-        return {
+        return [{
             "alumno": alumno,
             "clase": clase,
             "dia_semana": DIAS[dia_semana],
             "mes": MESES[mes - 1],
-            "probabilidad_falta": round(prob, 3),
+            "probabilidad_falta": round(float(prob), 3),
             "nivel": nivel(prob),
             "prediccion": "Falta" if prob >= config.PROB_ALTA else "Asiste",
             "factores": {
@@ -133,7 +143,7 @@ class ModeloAsistencia:
                 "faltas_ultimas5": int(hist["faltas_ultimas5"]),
                 "clases_registradas": int(hist["clases_registradas"]),
             },
-        }
+        } for (alumno, clase, hist), prob in zip(historiales, probs)]
 
     def pares_alumno_clase(self, clase: str | None = None) -> list[tuple[str, str]]:
         """Todas las combinaciones alumno–materia con historial (para el panel de riesgo)."""

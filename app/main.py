@@ -101,7 +101,7 @@ def predecir(s: SolicitudPrediccion):
 @app.get("/prediccion", dependencies=[Depends(verificar_clave), Depends(requiere_modelo)])
 def prediccion_todos(fecha: date | None = None, clase: str | None = None):
     f = fecha or date.today()
-    resultado = [modelo.predecir(a, c, f.weekday(), f.month) for a, c in modelo.pares_alumno_clase(clase)]
+    resultado = modelo.predecir_lote(modelo.pares_alumno_clase(clase), f.weekday(), f.month)
     resultado.sort(key=lambda r: r["probabilidad_falta"], reverse=True)
     return resultado
 
