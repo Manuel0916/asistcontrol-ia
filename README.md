@@ -30,6 +30,8 @@ los tres empatan, lo que indica que el límite está en los datos (mucho azar), 
 Se eligió Random Forest porque además explica qué variables pesan más.
 
 ## Ejecutar en tu PC
+Normalmente **no hace falta**: al darle *Run* al backend en IntelliJ, este servicio se prende
+solo (`IaLocalLauncher`). Para prepararlo la primera vez o correrlo a mano:
 ```powershell
 cd "F:\proyecto aula\control_asistencias_ia"
 python -m venv .venv
